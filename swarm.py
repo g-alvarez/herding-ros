@@ -43,7 +43,8 @@ def plot_positions(positions):
 def get_neighbors(i, adj_matrix):
   """Get the neighbors of robot i, using the adjancency matrix.
 
-  If the position j is equals to 1, then it is a neighbor 
+  If the position j is equal to 1 and it is not the current robot, 
+  then it is a neighbor 
   """
   neighbors = []
   j = 0
