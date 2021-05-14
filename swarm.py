@@ -49,13 +49,11 @@ def get_neighbors(i, adj_matrix):
 
   If the value of position j is equal to 1 then it is a neighbor.
   """
-  neighbors = []
   j = 0
   for elem in adj_matrix[i]:
     if elem == 1:
-      neighbors.append(j)
+      yield j
     j += 1
-  return neighbors
 
 def convert_range(x):
   """Convert x value from range [0, 1] to range [-100, 100].
@@ -156,7 +154,7 @@ if __name__ == "__main__":
     for i in range(n):
       if args.verbose:
         print("Robot [{}] - {}".format(i, positions[i]))
-        
+
       sum_gamma_interaction_function = np.zeros(2)
       sum_gamma = np.zeros(2)
       # Get the neighbors of robot i
