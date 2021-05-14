@@ -16,12 +16,16 @@ OLD_MAX = 1
 MIN = -100
 MAX = 100
 
+# The generalized function parameters
 PHI_BETA = 5.3
 PHI_C = 0.4
 
+# The gamma function parameters
 GAMMA_ALPHA = 2.3
 
+# The attraction function parameters
 ATTRACTION_A = 2.5
+# The repulsion function parameters
 REPULSION_B = 10
 
 def plot_positions(positions):
