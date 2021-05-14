@@ -125,8 +125,9 @@ def interaction_function(vector):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Swarm algorithm test.')
-  parser.add_argument('-N', '--robots', type=int, default=2, choices=range(2, 11), help='The number of robots')
+  parser.add_argument('-n', '--robots', type=int, default=2, choices=range(2, 11), help='The number of robots')
   parser.add_argument('-T', '--rate', type=int, default=5, choices=range(1, 11), help='The rate of positions plots')
+  parser.add_argument('-v', '--verbose', action="store_true", help='Verbose mode shows program variables state')
 
   args = parser.parse_args()
   n = args.robots
@@ -134,15 +135,17 @@ if __name__ == "__main__":
   # The adjancency matrix, all robots are connected
   adj_matrix = np.ones((n, n), dtype=int)
   np.fill_diagonal(adj_matrix, 0)
-  print("Adjacency matrix:")
-  print(adj_matrix)
-  print()
 
   # The position (x, y) coordinates of robot i for i in 0..n-1
   positions = convert_range(np.random.rand(n, 2))
-  print("Initial positions:")
-  print(positions)
-  print()
+
+  if args.verbose:
+    print("Adjacency matrix:")
+    print(adj_matrix)
+    print()
+    print("Initial positions:")
+    print(positions)
+    print()
 
   while True:
     # Plot the positions of all robots
@@ -164,7 +167,9 @@ if __name__ == "__main__":
       positions[i][0] = positions[i][0] if positions[i][0] <= MAX else MAX - positions[i][0] % MAX
       positions[i][1] = positions[i][1] if positions[i][1] <= MAX else MAX - positions[i][1] % MAX
       positions[i][1] = positions[i][1] if positions[i][1] >= MIN else MIN - positions[i][1] % MIN
-      print("Robot [{}] - {}".format(i, positions[i]))
+      if args.verbose:
+        print("Robot [{}] - {}".format(i, positions[i]))
 
-    print("Sleeping for {} seconds...\n".format(1 / args.rate))
+    if args.verbose:
+      print("Sleeping for {} seconds...\n".format(1 / args.rate))
     time.sleep(1 / args.rate)
