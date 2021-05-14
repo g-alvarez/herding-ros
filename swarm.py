@@ -8,6 +8,8 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib import animation
+from beartype import beartype
+from typing import Iterator
 
 matplotlib.use("TkAgg")
 
@@ -28,7 +30,8 @@ ATTRACTION_A = 2.5
 # The repulsion function parameters
 REPULSION_B = 10
 
-def plot_positions(positions):
+@beartype
+def plot_positions(positions: np.ndarray) -> None:
   """Plot the positions of each robot in a 200x200 figure.
   
   The x and y axis limits:
@@ -44,7 +47,8 @@ def plot_positions(positions):
   plt.show(block=False)
   plt.pause(0.01)
 
-def get_neighbors(i, adj_matrix):
+@beartype
+def get_neighbors(i: int, adj_matrix: np.ndarray) -> Iterator[int]:
   """Get the neighbors of robot i, using the adjancency matrix.
 
   If the value of position j is equal to 1 then it is a neighbor.
@@ -55,14 +59,16 @@ def get_neighbors(i, adj_matrix):
       yield j
     j += 1
 
-def convert_range(x):
-  """Convert x value from range [0, 1] to range [-100, 100].
+@beartype
+def convert_range(vector: np.ndarray) -> np.ndarray:
+  """Convert vector values from range [0, 1] to range [-100, 100].
   """
   old_range = OLD_MAX - OLD_MIN  
   new_range = MAX - MIN  
-  return (((x - OLD_MIN) * new_range) / old_range) + MIN
+  return (((vector - OLD_MIN) * new_range) / old_range) + MIN
 
-def phi(value, beta=PHI_BETA, c=PHI_C):
+@beartype
+def phi(value: float, beta: float = PHI_BETA, c: float = PHI_C) -> float:
   """The generalized function.
 
   The formula:
@@ -74,7 +80,8 @@ def phi(value, beta=PHI_BETA, c=PHI_C):
   """
   return math.exp(-1 * (value ** beta) / c)
 
-def gamma(pos_i, pos_j, alpha=GAMMA_ALPHA):
+@beartype
+def gamma(pos_i: np.ndarray, pos_j: np.ndarray, alpha: float = GAMMA_ALPHA) -> float:
   """The gamma function.
 
   The formula:
@@ -86,7 +93,8 @@ def gamma(pos_i, pos_j, alpha=GAMMA_ALPHA):
   """
   return 1 / (np.linalg.norm(pos_i - pos_j) ** alpha)
 
-def attraction_function(vector, a=ATTRACTION_A):
+@beartype
+def attraction_function(vector: np.ndarray, a: float = ATTRACTION_A) -> float:
   """The attraction function.
 
   The formula:
@@ -99,7 +107,8 @@ def attraction_function(vector, a=ATTRACTION_A):
   """
   return a * (1 - phi(np.linalg.norm(vector)))
 
-def repulsion_function(vector, b=REPULSION_B):
+@beartype
+def repulsion_function(vector: np.ndarray, b: float = REPULSION_B) -> float:
   """The repulsion function.
 
   The formula:
@@ -112,7 +121,8 @@ def repulsion_function(vector, b=REPULSION_B):
   """
   return b * phi(np.linalg.norm(vector))
 
-def interaction_function(vector):
+@beartype
+def interaction_function(vector: np.ndarray) -> np.ndarray:
   """The interaction function.
 
   The formula:
