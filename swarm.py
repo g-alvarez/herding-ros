@@ -13,8 +13,10 @@ from typing import Iterator
 
 matplotlib.use("TkAgg")
 
+# np.random.rand range
 OLD_MIN = 0
 OLD_MAX = 1
+# Plot figure (x,y) axis range
 MIN = -100
 MAX = 100
 
