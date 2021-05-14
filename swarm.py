@@ -16,6 +16,7 @@ matplotlib.use("TkAgg")
 # np.random.rand range
 OLD_MIN = 0
 OLD_MAX = 1
+
 # Plot figure (x,y) axis range
 MIN = -100
 MAX = 100
@@ -24,12 +25,13 @@ MAX = 100
 PHI_BETA = 5.3
 PHI_C = 0.4
 
-# The gamma function parameters
+# The gamma function parameter
 GAMMA_ALPHA = 2.3
 
-# The attraction function parameters
+# The attraction function parameter
 ATTRACTION_A = 2.5
-# The repulsion function parameters
+
+# The repulsion function parameter
 REPULSION_B = 10
 
 @beartype
