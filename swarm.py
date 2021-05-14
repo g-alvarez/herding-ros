@@ -147,9 +147,6 @@ if __name__ == "__main__":
     print("Adjacency matrix:")
     print(adj_matrix)
     print()
-    print("Initial positions:")
-    print(positions)
-    print()
 
   while True:
     # Plot the positions of all robots
@@ -157,6 +154,9 @@ if __name__ == "__main__":
 
     # Calculate the new positions
     for i in range(n):
+      if args.verbose:
+        print("Robot [{}] - {}".format(i, positions[i]))
+        
       sum_gamma_interaction_function = np.zeros(2)
       sum_gamma = np.zeros(2)
       # Get the neighbors of robot i
@@ -171,8 +171,6 @@ if __name__ == "__main__":
       positions[i][0] = positions[i][0] if positions[i][0] <= MAX else MAX - positions[i][0] % MAX
       positions[i][1] = positions[i][1] if positions[i][1] <= MAX else MAX - positions[i][1] % MAX
       positions[i][1] = positions[i][1] if positions[i][1] >= MIN else MIN - positions[i][1] % MIN
-      if args.verbose:
-        print("Robot [{}] - {}".format(i, positions[i]))
 
     if args.verbose:
       print("Sleeping for {} seconds...\n".format(1 / args.rate))
