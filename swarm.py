@@ -159,6 +159,11 @@ if __name__ == "__main__":
 
       # Update the position of robot i with the accumulated values
       positions[i] += sum_gamma_interaction_function / sum_gamma
+      # Make sure coordinates are inside the map
+      positions[i][0] = positions[i][0] if positions[i][0] >= MIN else MIN - positions[i][0] % MIN
+      positions[i][0] = positions[i][0] if positions[i][0] <= MAX else MAX - positions[i][0] % MAX
+      positions[i][1] = positions[i][1] if positions[i][1] <= MAX else MAX - positions[i][1] % MAX
+      positions[i][1] = positions[i][1] if positions[i][1] >= MIN else MIN - positions[i][1] % MIN
       print("Robot [{}] - {}".format(i, positions[i]))
 
     print("Sleeping for {} seconds...\n".format(1 / args.rate))
