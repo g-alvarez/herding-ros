@@ -29,10 +29,13 @@ PHI_C = 0.4
 GAMMA_ALPHA = 2.3
 
 # The attraction function parameter
-ATTRACTION_A = 2.5
+ATTRACTION_A = 10.0
 
 # The repulsion function parameter
-REPULSION_B = 10
+REPULSION_B = 3.0
+
+# The range of visibility
+R = 1000
 
 @beartype
 def plot_positions(positions: np.ndarray) -> None:
@@ -62,6 +65,25 @@ def get_neighbors(i: int, adj_matrix: np.ndarray) -> Iterator[int]:
     if elem == 1:
       yield j
     j += 1
+
+@beartype
+def update_adj_matrix(positions: np.ndarray, adj_matrix: np.ndarray) -> None:
+  """Update the adjacency matrix with the current position of all robots.
+
+  The formula:
+    eij(t) = 1 <=> ||Xi(t) - Xj(t)|| <= r, otherwise 0
+    aij(t) = 1 <=> eij(t) = 1, otherwise 0
+
+  Where:
+    eij is an edge between robot i and robot j
+    aij is an entry in the adjacency matrix
+  """
+  n = len(adj_matrix)
+  for i in range(n):
+    for j in range(i+1, n):
+      distance = np.linalg.norm(positions[i] - positions[j])
+      adj_matrix[i][j] = 1 if distance <= R else 0
+      adj_matrix[j][i] = 1 if distance <= R else 0
 
 @beartype
 def convert_range(vector: np.ndarray) -> np.ndarray:
@@ -141,7 +163,7 @@ def interaction_function(vector: np.ndarray) -> np.ndarray:
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Swarm algorithm test.')
-  parser.add_argument('-n', '--robots', type=int, default=2, choices=range(2, 11), help='the number of robots')
+  parser.add_argument('-n', '--robots', type=int, default=2, choices=range(2, 101), help='the number of robots')
   parser.add_argument('-r', '--rate', type=int, default=5, choices=range(1, 11), help='the rate of plots')
   parser.add_argument('-v', '--verbose', action="store_true", help='shows program state step by step')
 
@@ -155,14 +177,12 @@ if __name__ == "__main__":
   # The position (x, y) coordinates of robot i for i in 0..n-1
   positions = convert_range(np.random.rand(n, 2))
 
-  if args.verbose:
-    print("Adjacency matrix:")
-    print(adj_matrix)
-    print()
-
   while True:
     # Plot the positions of all robots
     plot_positions(positions)
+
+    # Update the adjacency matrix with current positions
+    update_adj_matrix(positions, adj_matrix)
 
     # Calculate the new positions
     for i in range(n):
@@ -177,7 +197,8 @@ if __name__ == "__main__":
         sum_gamma += gamma(positions[i], positions[j])
 
       # Update the position of robot i with the accumulated values
-      positions[i] += sum_gamma_interaction_function / sum_gamma
+      if np.linalg.norm(sum_gamma) != 0:
+        positions[i] += sum_gamma_interaction_function / sum_gamma
       # Make sure coordinates are inside the map
       positions[i][0] = positions[i][0] if positions[i][0] >= MIN else MIN - positions[i][0] % MIN
       positions[i][0] = positions[i][0] if positions[i][0] <= MAX else MAX - positions[i][0] % MAX
