@@ -140,8 +140,8 @@ def interaction_function(vector: np.ndarray) -> np.ndarray:
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Swarm algorithm test.')
   parser.add_argument('-n', '--robots', type=int, default=2, choices=range(2, 11), help='The number of robots')
-  parser.add_argument('-T', '--rate', type=int, default=5, choices=range(1, 11), help='The rate of positions plots')
-  parser.add_argument('-v', '--verbose', action="store_true", help='Verbose mode shows program variables state')
+  parser.add_argument('-T', '--rate', type=int, default=5, choices=range(1, 11), help='The rate of plots')
+  parser.add_argument('-v', '--verbose', action="store_true", help='Show program information')
 
   args = parser.parse_args()
   n = args.robots
