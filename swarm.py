@@ -29,16 +29,16 @@ PHI_C = 0.4
 GAMMA_ALPHA = 2.3
 
 # The attraction function parameter
-ATTRACTION_A = 10.0
+ATTRACTION_A = 5
 
 # The repulsion function parameter
-REPULSION_B = 3.0
+REPULSION_B = 20
 
 # The range of visibility
-R = 1000
+R = 20
 
 @beartype
-def plot_positions(positions: np.ndarray) -> None:
+def plot_positions(n: int, positions: np.ndarray) -> None:
   """Plot the positions of each robot in a 200x200 figure.
   
   The x and y axis limits:
@@ -48,8 +48,13 @@ def plot_positions(positions: np.ndarray) -> None:
   plt.clf()
   plt.xlim(MIN, MAX)
   plt.ylim(MIN, MAX)
+  i = 0
   for pos in positions:
-    plt.plot(pos[0], pos[1], "bo")
+    if i < n:
+      plt.plot(pos[0], pos[1], "bo")
+    else:
+      plt.plot(pos[0], pos[1], "k>")
+    i += 1
   plt.draw()
   plt.show(block=False)
   plt.pause(0.01)
@@ -62,12 +67,15 @@ def get_neighbors(i: int, adj_matrix: np.ndarray) -> Iterator[int]:
   """
   j = 0
   for elem in adj_matrix[i]:
-    if elem == 1:
-      yield j
+    if j < n:
+      if elem == 1:
+        yield j
+    else:
+      return
     j += 1
 
 @beartype
-def update_adj_matrix(positions: np.ndarray, adj_matrix: np.ndarray) -> None:
+def update_adj_matrix(n: int, positions: np.ndarray, adj_matrix: np.ndarray) -> None:
   """Update the adjacency matrix with the current position of all robots.
 
   The formula:
@@ -78,7 +86,6 @@ def update_adj_matrix(positions: np.ndarray, adj_matrix: np.ndarray) -> None:
     eij is an edge between robot i and robot j
     aij is an entry in the adjacency matrix
   """
-  n = len(adj_matrix)
   for i in range(n):
     for j in range(i+1, n):
       distance = np.linalg.norm(positions[i] - positions[j])
@@ -170,19 +177,26 @@ if __name__ == "__main__":
   args = parser.parse_args()
   n = args.robots
   
-  # The adjancency matrix, all robots are connected
-  adj_matrix = np.ones((n, n), dtype=int)
-  np.fill_diagonal(adj_matrix, 0)
-
   # The position (x, y) coordinates of robot i for i in 0..n-1
   positions = convert_range(np.random.rand(n, 2))
 
+  # The obstacle coordinates, a horizontal line y = 10.0
+  xaxis = np.linspace(0, 20, MAX)
+  yaxis = np.full(len(xaxis), 10.0, dtype=float)
+  obstacles = np.array(list(zip(xaxis,yaxis)))
+
+  positions = np.concatenate((positions, obstacles), axis=0)
+
+  # The adjancency matrix, all robots are connected
+  adj_matrix = np.ones((len(positions), len(positions)), dtype=int)
+  np.fill_diagonal(adj_matrix, 0)
+
   while True:
     # Plot the positions of all robots
-    plot_positions(positions)
+    plot_positions(n, positions)
 
     # Update the adjacency matrix with current positions
-    update_adj_matrix(positions, adj_matrix)
+    update_adj_matrix(n, positions, adj_matrix)
 
     # Calculate the new positions
     for i in range(n):
