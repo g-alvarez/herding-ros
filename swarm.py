@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-import numpy as np
-import math
-import argparse
-import time
-import matplotlib.pyplot as plt
-import matplotlib
 from matplotlib import animation
 from beartype import beartype
 from typing import Iterator
+import math
+import argparse
+import time
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
 
 matplotlib.use("TkAgg")
+
+DELTA_T = 0.3
 
 # np.random.rand range
 OLD_MIN = 0
@@ -22,20 +24,20 @@ MIN = -100
 MAX = 100
 
 # The generalized function parameters
-PHI_BETA = 5.3
-PHI_C = 0.4
+PHI_BETA = 2
+PHI_C = 1
 
 # The gamma function parameter
-GAMMA_ALPHA = 2.3
+GAMMA_ALPHA = 1
 
 # The attraction function parameter
-ATTRACTION_A = 5
+ATTRACTION_A = 4
 
 # The repulsion function parameter
-REPULSION_B = 20
+REPULSION_B = 0.2
 
 # The range of visibility
-R = 20
+R = 40
 
 @beartype
 def plot_positions(n: int, positions: np.ndarray) -> None:
@@ -53,7 +55,7 @@ def plot_positions(n: int, positions: np.ndarray) -> None:
     if i < n:
       plt.plot(pos[0], pos[1], "bo")
     else:
-      plt.plot(pos[0], pos[1], "k>")
+      plt.plot(pos[0], pos[1], "ko")
     i += 1
   plt.draw()
   plt.show(block=False)
@@ -67,11 +69,8 @@ def get_neighbors(i: int, adj_matrix: np.ndarray) -> Iterator[int]:
   """
   j = 0
   for elem in adj_matrix[i]:
-    if j < n:
-      if elem == 1:
-        yield j
-    else:
-      return
+    if elem == 1:
+      yield j
     j += 1
 
 @beartype
@@ -179,6 +178,7 @@ if __name__ == "__main__":
   
   # The position (x, y) coordinates of robot i for i in 0..n-1
   positions = convert_range(np.random.rand(n, 2))
+  positions_next = np.zeros((n, 2))
 
   # The obstacle coordinates, a horizontal line y = 10.0
   xaxis = np.linspace(0, 20, MAX)
@@ -200,6 +200,7 @@ if __name__ == "__main__":
 
     # Calculate the new positions
     for i in range(n):
+      positions_next[i] = positions[i]
       if args.verbose:
         print("Robot [{}] - {}".format(i, positions[i]))
 
@@ -207,17 +208,22 @@ if __name__ == "__main__":
       sum_gamma = np.zeros(2)
       # Get the neighbors of robot i
       for j in get_neighbors(i, adj_matrix):
-        sum_gamma_interaction_function += gamma(positions[i], positions[j]) * interaction_function(positions[i] - positions[j])
-        sum_gamma += gamma(positions[i], positions[j])
+        gamma_res = gamma(positions[i], positions[j])
+        sum_gamma_interaction_function += gamma_res * \
+            interaction_function(positions[i] - positions[j])
+        sum_gamma += gamma_res
 
       # Update the position of robot i with the accumulated values
       if np.linalg.norm(sum_gamma) != 0:
-        positions[i] += sum_gamma_interaction_function / sum_gamma
+        positions_next[i] += sum_gamma_interaction_function / sum_gamma * DELTA_T
+      
       # Make sure coordinates are inside the map
-      positions[i][0] = positions[i][0] if positions[i][0] >= MIN else MIN - positions[i][0] % MIN
-      positions[i][0] = positions[i][0] if positions[i][0] <= MAX else MAX - positions[i][0] % MAX
-      positions[i][1] = positions[i][1] if positions[i][1] <= MAX else MAX - positions[i][1] % MAX
-      positions[i][1] = positions[i][1] if positions[i][1] >= MIN else MIN - positions[i][1] % MIN
+      positions_next[i][0] = positions_next[i][0] if positions_next[i][0] >= MIN else MIN - positions_next[i][0] % MIN
+      positions_next[i][0] = positions_next[i][0] if positions_next[i][0] <= MAX else MAX - positions_next[i][0] % MAX
+      positions_next[i][1] = positions_next[i][1] if positions_next[i][1] <= MAX else MAX - positions_next[i][1] % MAX
+      positions_next[i][1] = positions_next[i][1] if positions_next[i][1] >= MIN else MIN - positions_next[i][1] % MIN
+
+    positions = positions_next
 
     if args.verbose:
       print("Sleeping for {} seconds...\n".format(1 / args.rate))
