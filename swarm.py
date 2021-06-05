@@ -207,7 +207,7 @@ def interaction_function(vector: np.ndarray, neighbor: int, n: int) -> np.ndarra
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Swarm algorithm test.')
-  parser.add_argument('-n', '--robots', type=int, default=2, choices=range(2, 101), 
+  parser.add_argument('-n', '--robots', type=int, default=2, choices=range(2, 25), 
                       help='the number of robots')
   parser.add_argument('-r', '--rate', type=int, default=5, choices=range(1, 11), 
                       help='the rate of plots')
@@ -267,6 +267,7 @@ if __name__ == "__main__":
       if np.linalg.norm(sum_gamma) != 0:
         positions_next[i] += sum_gamma_interaction_function / sum_gamma * DELTA_T
 
+    # Update the robot position
     for i in range(n):
       positions[i] = positions_next[i]
       
