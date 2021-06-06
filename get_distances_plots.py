@@ -45,5 +45,4 @@ if __name__ == "__main__":
   plt.plot(x, min_dists_leader, label="Leader")
   plt.plot(x, min_dists_obstacles, label="Obstacles")
   plt.legend()
-  # plt.show(block=True)
   plt.savefig('./img/distances.png')
