@@ -94,7 +94,7 @@ def signal_handler(signal: int, frame) -> None:
 
 @beartype
 def plot_positions(n: int, positions: np.ndarray, k: int, save: bool = False) -> None:
-  """Plot the positions of each robot in a 200x200 figure.
+  """Plot the positions of each robot in a 4x4 figure.
   
   The x and y axis limits:
     - x [-100, 100]
