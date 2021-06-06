@@ -349,7 +349,7 @@ if __name__ == "__main__":
     time.sleep(1 / args.rate)
     k += 1
 
-  # The dataframe that will hold the statistics
+  # The dataframe that will hold the distances
   columns = ["Batch", "Robot", "X", "Y"] + \
       ["neighbor_" + str(i) for i in range(n)] + ["leader"] + ["obstacle_" + str(i) for i in range(num_obstacles)]
 
