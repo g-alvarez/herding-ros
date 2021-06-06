@@ -4,12 +4,16 @@
 from matplotlib import animation
 from beartype import beartype
 from typing import Iterator
+import matplotlib.pyplot as plt
+import matplotlib
+import numpy as np
+import pandas as pd
 import math
 import argparse
 import time
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
+import signal
+import glob
+import os
 
 matplotlib.use("TkAgg")
 
@@ -37,19 +41,19 @@ ATTRACTION_A = 4.0
 REPULSION_B = 0.4
 
 # The leader speed parameter
-LEADER_SPEED = 0.005
+LEADER_SPEED = 0.05
 
 # The leader node attraction function parameter
-LEADER_ATTRACTION_A = 20.0
+LEADER_ATTRACTION_A = ATTRACTION_A * 4
 
 # The obstacle node repulsion function parameter
-OBSTACLE_REPULSION_B = 20.0
+OBSTACLE_REPULSION_B = REPULSION_B * 4
 
 # The range of visibility
-R = 100.0
+R = 10.0
 
 # The angular speed
-DELTA_ANG = 0.5
+DELTA_ANG = 1.0
 
 # The radius of the circular trajectory
 RADIUS = 1.0
@@ -67,8 +71,25 @@ def circular_path(x: float, y: float, delta_angle: float = DELTA_ANG,
     yield (x + radius * cos(angle), y + radius * sin(angle))
     angle = (angle + delta_angle) % 360
 
+def clean_img_dir() -> None:
+  """Clean the img directory.
+  """
+  files = glob.glob('./img/*.png')
+  for f in files:
+    try:
+      os.remove(f)
+    except OSError as e:
+      print("Error: %s : %s" % (f, e.strerror))
+
 @beartype
-def plot_positions(n: int, positions: np.ndarray) -> None:
+def signal_handler(signal: int, frame) -> None:
+  """Handle the interupt signal.
+  """
+  global interrupted
+  interrupted = True
+
+@beartype
+def plot_positions(n: int, positions: np.ndarray, k: int, save: bool = False) -> None:
   """Plot the positions of each robot in a 200x200 figure.
   
   The x and y axis limits:
@@ -93,6 +114,8 @@ def plot_positions(n: int, positions: np.ndarray) -> None:
   plt.draw()
   plt.show(block=False)
   plt.pause(0.01)
+  if save:
+    plt.savefig('./img/map_{}.png'.format(k))
 
 @beartype
 def get_neighbors(i: int, adj_matrix: np.ndarray) -> Iterator[int]:
@@ -105,6 +128,21 @@ def get_neighbors(i: int, adj_matrix: np.ndarray) -> Iterator[int]:
     if elem == 1:
       yield j
     j += 1
+
+@beartype
+def add_distances(n: int, k: int, positions: np.ndarray, distances: list) -> None:
+  """Calculate the new distances and add them to the distances list.
+  """
+  for i in range(n):
+    row = [k, i, positions[i][0], positions[i][1]]
+    for j in range(len(positions)):
+      if i != j:
+        distance = np.linalg.norm(positions[i] - positions[j])
+        row.append(distance)
+      else:
+        # Include NaN, so that the value is ignored when ploting the distances
+        row.append(np.NaN)
+    distances.append(row)
 
 @beartype
 def update_adj_matrix(n: int, positions: np.ndarray, adj_matrix: np.ndarray) -> None:
@@ -216,10 +254,16 @@ if __name__ == "__main__":
                       help='shows program state step by step')
   parser.add_argument('-m', '--motion', choices=["circ", "rect"], default="rect",
                       help='leader node motion type')
+  parser.add_argument('-o', '--obstacles', type=int, default=0, choices=range(0, 11),
+                      help='the number of obstacles')
+
+  # Clean the image directory
+  clean_img_dir()
 
   args = parser.parse_args()
   n = args.robots
   motion = args.motion
+  num_obstacles = args.obstacles
 
   # The position (x, y) coordinates of robot i for i in 0..n-1
   positions = convert_range(np.random.rand(n+1, 2))
@@ -230,24 +274,36 @@ if __name__ == "__main__":
     c = circular_path(positions[n][0], positions[n][1])
     positions[n] = next(c)
 
-  # The obstacle coordinates, a horizontal line y = 10.0
-  xaxis = np.linspace(-1.0, 1.0, 4)
-  yaxis = np.full(len(xaxis), 1.0, dtype=float)
-  obstacles = np.array(list(zip(xaxis,yaxis)))
+  if num_obstacles > 0:
+    # The obstacle coordinates, a horizontal line y = 10.0
+    xaxis = np.linspace(-1.5, 1.5, num_obstacles)
+    yaxis = np.full(len(xaxis), 0.0, dtype=float)
+    obstacles = np.array(list(zip(xaxis,yaxis)))
 
-  positions = np.concatenate((positions, obstacles), axis=0)
+    positions = np.concatenate((positions, obstacles), axis=0)
 
   # The adjancency matrix, all robots are connected
   adj_matrix = np.ones((len(positions), len(positions)), dtype=int)
   np.fill_diagonal(adj_matrix, 0)
 
+  # Properly interupt the program
+  signal.signal(signal.SIGINT, signal_handler)
+
+  if args.verbose:
+    print("Starting the simulation...")
+
+  distances = []
   k = 0
+  interrupted = False
   while True:
     # Plot the positions of all robots
-    plot_positions(n, positions)
+    plot_positions(n, positions, k, save=True)
 
     # Update the adjacency matrix with current positions
     update_adj_matrix(n, positions, adj_matrix)
+
+    # Add the new distances
+    add_distances(n, k, positions, distances)
 
     # Calculate the new positions
     for i in range(n):
@@ -281,5 +337,17 @@ if __name__ == "__main__":
 
     k += 1
     if args.verbose:
-      print("Sleeping for {} seconds...\n".format(1 / args.rate))
+      print("Sleeping for {} seconds...".format(1 / args.rate))
     time.sleep(1 / args.rate)
+
+    if interrupted:
+      if args.verbose:
+        print("Exiting the simulation...")
+      break
+
+  # The dataframe that will hold the statistics
+  columns = ["Batch", "Robot", "X", "Y"] + \
+      ["neighbor_" + str(i) for i in range(n)] + ["leader"] + ["obstacle_" + str(i) for i in range(num_obstacles)]
+
+  df = pd.DataFrame(distances, columns=columns)
+  df.to_csv('./csv/distances.csv', index=False, sep=",", encoding="utf-8")
