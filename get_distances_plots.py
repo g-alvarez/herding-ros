@@ -13,12 +13,14 @@ if __name__ == "__main__":
                       help='shows program state step by step')
   parser.add_argument('-o', '--obstacles', type=int, required=True, choices=range(0, 11),
                       help='the number of obstacles')
+  parser.add_argument('-t', '--type', type=str, choices=["good", "regular", "bad"],
+                      help='the type of run')
 
   args = parser.parse_args()
   num_robots = args.robots
   num_obstacles = args.obstacles
 
-  df = pd.read_csv('./csv/distances.csv', sep=",", encoding="utf-8")
+  df = pd.read_csv('./csv/' + (args.type + '/' if args.type else '') + 'distances.csv', sep=",", encoding="utf-8")
 
   # Calculate min distance in batches of number of robots
   min_dists_robots = []
@@ -45,4 +47,4 @@ if __name__ == "__main__":
   plt.plot(x, min_dists_leader, label="Leader")
   plt.plot(x, min_dists_obstacles, label="Obstacles")
   plt.legend()
-  plt.savefig('./img/distances.png')
+  plt.savefig('./img/' + (args.type + '/' if args.type else '') + 'distances.png')

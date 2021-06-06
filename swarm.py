@@ -17,6 +17,8 @@ import os
 
 matplotlib.use("TkAgg")
 
+NUM_ITER = 300
+
 DELTA_T = 0.03
 
 # np.random.rand range
@@ -295,7 +297,7 @@ if __name__ == "__main__":
   distances = []
   k = 0
   interrupted = False
-  while True:
+  while k < 300:
     # Plot the positions of all robots
     plot_positions(n, positions, k, save=True)
 
@@ -335,15 +337,15 @@ if __name__ == "__main__":
       else:
         positions[n] += LEADER_SPEED
 
-    k += 1
-    if args.verbose:
-      print("Sleeping for {} seconds...".format(1 / args.rate))
-    time.sleep(1 / args.rate)
-
     if interrupted:
       if args.verbose:
         print("Exiting the simulation...")
       break
+
+    if args.verbose:
+      print("Sleeping for {} seconds...".format(1 / args.rate))
+    time.sleep(1 / args.rate)
+    k += 1
 
   # The dataframe that will hold the statistics
   columns = ["Batch", "Robot", "X", "Y"] + \
