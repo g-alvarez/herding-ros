@@ -6,7 +6,7 @@ import pandas as pd
 import argparse
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description='Swarm algorithm test.')
+  parser = argparse.ArgumentParser(description='Plot the minimun distances between robots.')
   parser.add_argument('-n', '--robots', type=int, required=True, choices=range(2, 25),
                       help='the number of robots')
   parser.add_argument('-v', '--verbose', action="store_true",

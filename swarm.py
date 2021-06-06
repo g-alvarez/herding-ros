@@ -17,8 +17,10 @@ import os
 
 matplotlib.use("TkAgg")
 
+# The number of iterations
 NUM_ITER = 300
 
+# The rate of change in time
 DELTA_T = 0.03
 
 # np.random.rand range
@@ -42,7 +44,7 @@ ATTRACTION_A = 4.0
 # The repulsion function parameter
 REPULSION_B = 0.4
 
-# The leader speed parameter
+# The leader speed parameter in rectilinear motion
 LEADER_SPEED = 0.05
 
 # The leader node attraction function parameter
@@ -54,7 +56,7 @@ OBSTACLE_REPULSION_B = REPULSION_B * 4
 # The range of visibility
 R = 10.0
 
-# The angular speed
+# The angular speed parameter in circular motion
 DELTA_ANG = 1.0
 
 # The radius of the circular trajectory
