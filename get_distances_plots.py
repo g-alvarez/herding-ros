@@ -7,7 +7,7 @@ import argparse
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Plot the minimun distances between robots.')
-  parser.add_argument('-n', '--robots', type=int, required=True, choices=range(2, 25),
+  parser.add_argument('-n', '--robots', type=int, required=True, choices=range(2, 26),
                       help='the number of robots')
   parser.add_argument('-v', '--verbose', action="store_true",
                       help='shows program state step by step')
