@@ -240,10 +240,10 @@ def interaction_function(vector: np.ndarray, neighbor: int, n: int) -> np.ndarra
     - Gr is the repulsion function
     - Ga is the attraction function
   """
-  # Neighbor is leader node
+  # Neighbor is the leader node
   if neighbor == n:
     return vector / np.linalg.norm(vector) * (repulsion_function(vector) - attraction_function(vector, a=LEADER_ATTRACTION_A))
-  # Neighbor is obstacle
+  # Neighbor is am obstacle
   elif neighbor > n:
     return vector / np.linalg.norm(vector) * (repulsion_function(vector, b=OBSTACLE_REPULSION_B) - attraction_function(vector))
   return vector / np.linalg.norm(vector) * (repulsion_function(vector) - attraction_function(vector))
