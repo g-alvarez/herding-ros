@@ -2,11 +2,10 @@
 # coding=utf-8
 
 import numpy as np
+import argparse
 import glob
 import cv2
 import os
-
-import argparse
 
 parser = argparse.ArgumentParser(description='Generate the video from the images.')
 parser.add_argument('-d', '--dir', type=str, required=True, help='the dir with the images')
