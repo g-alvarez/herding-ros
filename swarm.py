@@ -299,7 +299,7 @@ if __name__ == "__main__":
   distances = []
   k = 0
   interrupted = False
-  while k < 300:
+  while k < NUM_ITER:
     # Plot the positions of all robots
     plot_positions(n, positions, k, save=True)
 
