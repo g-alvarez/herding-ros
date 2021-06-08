@@ -65,16 +65,6 @@ RADIUS = 1.0
 sin = lambda degs: math.sin(math.radians(degs))
 cos = lambda degs: math.cos(math.radians(degs))
 
-@beartype
-def circular_path(x: float, y: float, delta_angle: float = DELTA_ANG, 
-                  radius: float = RADIUS) -> Iterator[tuple]:
-  """Generate coords of a circular path every delta angle degrees.
-  """
-  angle = 0
-  while True:
-    yield (x + radius * cos(angle), y + radius * sin(angle))
-    angle = (angle + delta_angle) % 360
-
 def clean_img_dir() -> None:
   """Clean the img directory.
   """
@@ -84,6 +74,16 @@ def clean_img_dir() -> None:
       os.remove(f)
     except OSError as e:
       print("Error: %s : %s" % (f, e.strerror))
+
+@beartype
+def circular_path(x: float, y: float, delta_angle: float = DELTA_ANG, 
+                  radius: float = RADIUS) -> Iterator[tuple]:
+  """Generate coords of a circular path every delta angle degrees.
+  """
+  angle = 0
+  while True:
+    yield (x + radius * cos(angle), y + radius * sin(angle))
+    angle = (angle + delta_angle) % 360
 
 @beartype
 def signal_handler(signal: int, frame) -> None:
