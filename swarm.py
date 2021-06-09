@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
+# author: Gabriel Álvarez
+# email: 781429@unizar.es
+
 from matplotlib import animation
 from beartype import beartype
 from typing import Iterator
